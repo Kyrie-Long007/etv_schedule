@@ -1,7 +1,5 @@
 function f  = genetic_operator(parent_chromosome, M, V, mu, mum, l_limit, u_limit)
-[N,m] = size(parent_chromosome);
- 
-clear m
+[N, ~] = size(parent_chromosome);
 p = 1;
 was_crossover = 0;
 was_mutation = 0;
