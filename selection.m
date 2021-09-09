@@ -1,10 +1,10 @@
-function f = selection(chromosome, pool_size, tour_size)
+function result = selection(chrom, pool_size, tour_size)
 % 选择函数
 % 输入：种群；子代种群数量；候选人数量
 % 输出：子代种群
 % 调用函数：无
 
-[pop, variables] = size(chromosome);
+[pop, variables] = size(chrom);
 rank = variables - 1;
 distance = variables;
 for i = 1 : pool_size
@@ -23,8 +23,8 @@ for i = 1 : pool_size
         end
     end
     for j = 1 : tour_size
-        c_obj_rank(j) = chromosome(candidate(j),rank);
-        c_obj_distance(j) = chromosome(candidate(j),distance);
+        c_obj_rank(j) = chrom(candidate(j),rank);
+        c_obj_distance(j) = chrom(candidate(j),distance);
     end
     min_candidate = ...
         find(c_obj_rank == min(c_obj_rank));
@@ -34,8 +34,8 @@ for i = 1 : pool_size
         if length(max_candidate) ~= 1
             max_candidate = max_candidate(1);
         end
-        f(i,:) = chromosome(candidate(min_candidate(max_candidate)),:);
+        result(i,:) = chrom(candidate(min_candidate(max_candidate)),:);
     else
-        f(i,:) = chromosome(candidate(min_candidate(1)),:);
+        result(i,:) = chrom(candidate(min_candidate(1)),:);
     end
 end

@@ -7,7 +7,7 @@ function children = crossover(parent, PC)
 % 计算子代的个数
 nChildren = size(parent, 1);
 % 初始化children
-children = zeros(size(parent, 1), size(parent, 2));
+children = zeros()
 % 以下直接包括了nChildren为奇数和偶数两种情况
 % 为奇数，按1-2， 3-4， (nChildren-2)-(nChildren-1)，nChildren不参与交叉
 % 为偶数，按1-2， 3-4， (nChildren-1)-(nChildren)
@@ -27,7 +27,7 @@ function [a, b] = Intercross(a, b)
 % 调用函数：无
 
 % 计算父代个体的长度
-L = length(a)/2;
+L = length(a/2);
 % 随机选择两个交叉位置（方法二和三都需要判断选出的两个位置是否一样）
 temp = randperm(L);
 r1 = temp(1);
