@@ -38,17 +38,24 @@ for i = 1:size(chrom, 1)
     object_function(i, :) = calFitness(N, SAFE_DISTANCE, HORIZONTAL_SPEED, VERTICAL_SPEED, individual, task_coor, vehicle_start_coor);
 end
 
-% for i = 1:size(chrom, 1)
-%     scatter(object_function(i, 1), object_function(i, 2), 20, 'ro');
-%     % text(object_function(i, 1), object_function(i, 2), ['', num2str(i)], 'FontSize', 10);
-%     hold on;
-% end
+figure(1);
+for i = 1:size(chrom, 1)
+    scatter(object_function(i, 1), object_function(i, 2), 20, 'ro');
+    % text(object_function(i, 1), object_function(i, 2), ['', num2str(i)], 'FontSize', 10);
+    hold on;
+end
 
 %% 在染色体中增加适应度函数
 chrom = [chrom, object_function];
 
 %% 对染色体进行快速非支配排序和拥挤度计算
 chrom = nonDominationSort(chrom, M, N);
+% 初始种群最优解
+fprintf('Pareto Random Front:\n');
+fprintf('(%.4f, %.4f)\n', chrom(1,N+1), chrom(1,N+2));
+xlabel('f_1');
+ylabel('f_2');
+title('Pareto Random Front')
 
 %% 迭代优化
 for gen = 1:GEN
@@ -91,6 +98,7 @@ for gen = 1:GEN
 end
     
 %% 绘制图形
+figure(2);
 % 帕累托前沿曲线
 if M == 2
     plot(chrom(:,N+1), chrom(:,N+2), '*');
