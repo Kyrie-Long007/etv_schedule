@@ -7,7 +7,7 @@ function children = crossover(parent, PC)
 % 计算子代的个数
 nChildren = size(parent, 1);
 % 初始化children
-children = zeros(size(parent, 1), size(parent, 2));
+children = parent;
 % 以下直接包括了nChildren为奇数和偶数两种情况
 % 为奇数，按1-2， 3-4， (nChildren-2)-(nChildren-1)，nChildren不参与交叉
 % 为偶数，按1-2， 3-4， (nChildren-1)-(nChildren)
@@ -15,40 +15,60 @@ for i = 1:2:nChildren - mod(nChildren, 2)
     % 如果交叉率大于产生的随机数则进行交叉操作
     if PC >= rand
         % 交叉方式很多，这里使用两点交叉方法，使用函数的方式的好处是便于更换交叉方法
-        [children(i, :), children(i+1, :)] = Intercross(parent(i, :), parent(i+1, :));
-        
+        [children(i, :), children(i+1, :)] = Intercross(parent(i, :), parent(i+1, :));    
     end
 end
 
-function [a, b] = Intercross(a, b)
-% 两点交叉法（全局搜索，丰富种群的多样性，加快种群的收敛性，不和交叉前进行比较）
+function [child_chrom1, child_chrom2] = Intercross(parent_chrom1, parent_chrom2)
+% 部分匹配交叉法（全局搜索，丰富种群的多样性，加快种群的收敛性，不和交叉前进行比较）
 % 输入：a, b是两个待交叉的父代个体
 % 输出：a, b是两个交叉完成之后的子代个体
 % 调用函数：无
 
-% 计算父代个体的长度
-L = length(a)/2;
-% 随机选择两个交叉位置（方法二和三都需要判断选出的两个位置是否一样）
-temp = randperm(L);
-r1 = temp(1);
-r2 = temp(2);
-a0 = a;
-b0 = b;
-s = min([r1, r2]);
-e = max([r1, r2]);
-for i = s:e
-    a1 = a;
-    b1 = b;
-    a(i) = b0(i);
-    b(i) = a0(i);
-    x = find(a==a(i));
-    y = find(b==b(i));
-    i1 = x(x~=i);
-    i2 = y(y~=i);
-    if ~isempty(i1)
-        a(i1) = a1(i);
+% 计算个体的长度
+chrom_half_len = size(parent_chrom1,2) / 2;
+% 初始化子代染色体
+child_chrom1 = parent_chrom1;
+child_chrom2 = parent_chrom2;
+% 随机选择交叉位置，确保不存在极端位置
+tmp = randperm(chrom_half_len);
+location = tmp(1);
+while location == chrom_half_len
+    tmp = randperm(chrom_half_len);
+    location = tmp(1);
+end
+% 子代染色体组成的前半部分直接复制同源父代染色体
+child_chrom1(1:location) = parent_chrom1(1:location);
+child_chrom1(chrom_half_len+1:chrom_half_len+location) = parent_chrom1(chrom_half_len+1:chrom_half_len+location);
+child_chrom2(1:location) = parent_chrom2(1:location);
+child_chrom2(chrom_half_len+1:chrom_half_len+location) = parent_chrom2(chrom_half_len+1:chrom_half_len+location);
+% 子代染色体组成的后半部分采用非同源染色体的部分匹配交叉
+% 找出子代中不存在的任务号(此时不需要考虑分配顺序)
+child_chrom1_nexist_task = parent_chrom1(location+1:chrom_half_len);
+child_chrom2_nexist_task = parent_chrom2(location+1:chrom_half_len);
+for i = 1:length(child_chrom1_nexist_task)
+    single1 = child_chrom1_nexist_task(i);
+    single2 = child_chrom2_nexist_task(i);
+    % 在非同源染色体前半段中找到对应的single(要考虑任务号1和2和小车1和2的问题)
+    index1 = find(parent_chrom2(1:chrom_half_len)==single1, 1);
+    index2 = find(parent_chrom1(1:chrom_half_len)==single2, 1);
+    if length(index1) ~= 1 || length(index2) ~= 1
+        disp('index1: ', index1);
+        disp('index2: ', index2);
     end
-    if ~isempty(i2)
-        b(i2) = b1(i);
-    end
-end 
+    % 这里应该是location+i 不是 location+1
+    child_chrom1(location+i) = parent_chrom2(index1);
+    child_chrom1(chrom_half_len+location+i) = parent_chrom2(chrom_half_len+index1);
+    child_chrom2(location+i) = parent_chrom1(index2);
+    child_chrom2(chrom_half_len+location+i) = parent_chrom1(chrom_half_len+index2);
+end
+% debug: 判断子代染色体是否存在重复任务
+if length(unique(child_chrom1)) < chrom_half_len || length(unique(child_chrom2)) < chrom_half_len
+    disp('存在问题')
+end
+
+
+
+
+
+

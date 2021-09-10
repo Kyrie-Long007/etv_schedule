@@ -4,13 +4,20 @@ function children = mutation(children, PM)
 % 输出：子代种群
 % 调用函数：无
 
+% 计算个体的长度
+chrom_half_len = size(children,2) / 2;
 % 计算子代的个数和个体的长度
-[nChildren, L] = size(children);
+nChildren = size(children, 1);
 % 对于每一个个体，满足变异率大于生成的随机数则进行变异操作
 for i = 1:nChildren
     if PM >= rand
         % 随机取两个变异的位置
-        location = randperm(L);
-        children(i, location(1:2)) = children(i, location(2:-1:1));
+        tmp = randperm(chrom_half_len);
+        location = tmp(1);
+        while location == chrom_half_len || location == 1
+            tmp = randperm(chrom_half_len);
+            location = tmp(1);
+        end
+        children(i, :) = [children(i, location+1:chrom_half_len), children(i, 1:location), children(i, chrom_half_len+1:chrom_half_len*2)];
     end
 end
